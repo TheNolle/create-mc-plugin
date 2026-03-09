@@ -1,0 +1,29 @@
+# dependencies
+node_modules/
+
+# build output
+build/
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# os
+.DS_Store
+Thumbs.db
+
+# ide
+.idea/
+.vscode/
+
+# env
+.env
+.env.*
+
+# include templates
+!templates/
+!templates/**
+!templates/**/.gitignore
+!templates/**/.idea/
+!templates/**/.idea/**

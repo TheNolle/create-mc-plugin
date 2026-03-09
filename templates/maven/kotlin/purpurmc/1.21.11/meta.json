@@ -1,0 +1,9 @@
+{
+  "description": "Kotlin + Maven + PurpurMC 1.21.11 plugin template",
+  "files": ["pom.xml", "plugin.yml", "{{name}}.iml", ".gitignore", ".idea/", "src/"],
+  "notes": [
+    "Uses kotlin-stdlib-jdk8 + kotlin-reflect shaded",
+    "Purpur API 1.21.11-R0.1-SNAPSHOT",
+    "Java 21 target"
+  ]
+}
