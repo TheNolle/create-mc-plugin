@@ -27,7 +27,7 @@ jobs:
       - name: Test CLI Generation
         run: |
           node dist/index.js create \
-            --name "test-plugin" \
+            --name "test" \
             --dir "test-output" \
             --build-tool "maven" \
             --language "kotlin" \
@@ -35,13 +35,13 @@ jobs:
             --version "1.21.1" \
             --ide "intellij" \
             --group-id "com.example" \
-            --artifact-id "test-plugin" \
+            --artifact-id "test" \
             --yes
         env:
           CI: true
 
       - name: Verify Output
         run: |
-          ls -la test-output/test-plugin/
-          grep -q "com.example" test-output/test-plugin/pom.xml && echo "✅ pom.xml replaced" || exit 1
+          ls -la test-output/test/
+          grep -q "com.example" test-output/test/pom.xml && echo "✅ pom.xml replaced" || exit 1
         shell: bash
