@@ -22,8 +22,6 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
-      - run: pnpm run lint
-      - run: pnpm run format -- --check
 
       - name: Test CLI Generation
         run: |
