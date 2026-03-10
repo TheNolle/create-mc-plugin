@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       
-      - uses: pnpm/action-setup@v5
+      - uses: pnpm/action-setup@v4
         with:
           version: 9
           
@@ -24,16 +24,19 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
 
-      - name: Publish to npm
+      - name: Conditional Publish
         run: |
-          CURRENT_VERSION=$(node -p "require('./package.json').version")
-          NPM_VERSION=$(npm view . version || echo "0.0.0")
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          LOCAL_VERSION=$(node -p "require('./package.json').version")
+          
+          # Get remote version, fallback to 0.0.0 if package is new
+          REMOTE_VERSION=$(npm view $PACKAGE_NAME version 2>/dev/null || echo "0.0.0")
 
-          if [ "$CURRENT_VERSION" != "$NPM_VERSION" ]; then
-            echo "🚀 New version detected ($CURRENT_VERSION). Publishing..."
+          if [ "$LOCAL_VERSION" != "$REMOTE_VERSION" ]; then
+            echo "🚀 New version $LOCAL_VERSION detected (Remote: $REMOTE_VERSION)"
             pnpm publish --access public --no-git-checks
           else
-            echo "ℹ️ Version $CURRENT_VERSION already published. Skipping."
+            echo "✅ Version $LOCAL_VERSION matches registry. Skipping publish."
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
