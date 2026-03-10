@@ -5,6 +5,10 @@ on:
     branches: [master]
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -32,7 +36,5 @@ jobs:
             echo "🚀 New version $LOCAL_VERSION detected (Remote: $REMOTE_VERSION)"
             pnpm publish --access public --no-git-checks
           else
-            echo "✅ Version $LOCAL_VERSION matches registry. Skipping publish."
+            echo "✅ Version $LOCAL_VERSION matches registry. Skipping publish.
           fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
