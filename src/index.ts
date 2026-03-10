@@ -103,7 +103,7 @@ program
   .option('--authors <authors>', 'Authors (comma-separated)')
   .action(async (cmd) => {
     const skipPrompts = cmd.yes
-    console.clear()
+    if (!process.env.CI) console.clear()
 
     console.log(chalk.cyanBright(`
 ${'='.repeat(50)}
