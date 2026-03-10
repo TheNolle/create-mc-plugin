@@ -45,7 +45,7 @@
   "bugs": {
     "url": "https://github.com/thenolle/create-mc-plugin/issues"
   },
-  "repository": "https://github.com/thenolle/create-mc-plugin",
+  "repository": "https://github.com/TheNolle/create-mc-plugin",
   "publishConfig": {
     "access": "public",
     "tag": "latest"
