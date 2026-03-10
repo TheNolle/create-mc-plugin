@@ -5,18 +5,15 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
-  workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      
+
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-          
+
       - uses: actions/setup-node@v5
         with:
           node-version: 20
@@ -30,7 +27,7 @@ jobs:
       - name: Test CLI Generation
         run: |
           node dist/index.js create \
-            --name "TestPlugin" \
+            --name "test-plugin" \
             --dir "test-output" \
             --build-tool "maven" \
             --language "kotlin" \
@@ -45,8 +42,6 @@ jobs:
 
       - name: Verify Output
         run: |
-          ls -la test-output/TestPlugin
-          grep -q "com.example" test-output/TestPlugin/pom.xml && echo "✅ pom.xml placeholder replaced" || exit 1
+          ls -la test-output/test-plugin/
+          grep -q "com.example" test-output/test-plugin/pom.xml && echo "✅ pom.xml replaced" || exit 1
         shell: bash
-
-      - run: rm -rf test-output/
