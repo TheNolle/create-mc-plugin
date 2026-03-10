@@ -41,6 +41,13 @@ jobs:
 
       - name: Verify Output
         run: |
-          ls -la test-output/test/
-          grep -q "com.example" test-output/test/pom.xml && echo "✅ pom.xml replaced" || exit 1
+          echo "🔍 Checking root directory..."
+          ls -R test-output/
+          PROJECT_PATH=$(find test-output -name "pom.xml" -exec dirname {} \;)
+          if [ -z "$PROJECT_PATH" ]; then
+            echo "❌ Could not find pom.xml in test-output/"
+            exit 1
+          fi
+          echo "✅ Found project at: $PROJECT_PATH"
+          grep -q "com.example" "$PROJECT_PATH/pom.xml" && echo "✅ pom.xml placeholders replaced" || exit 1
         shell: bash
