@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      
+      - uses: pnpm/action-setup@v5
+        with:
+          version: 9
+          
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org/'
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+
+      - name: Publish to npm
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          NPM_VERSION=$(npm view . version || echo "0.0.0")
+
+          if [ "$CURRENT_VERSION" != "$NPM_VERSION" ]; then
+            echo "🚀 New version detected ($CURRENT_VERSION). Publishing..."
+            pnpm publish --access public --no-git-checks
+          else
+            echo "ℹ️ Version $CURRENT_VERSION already published. Skipping."
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

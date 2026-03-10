@@ -89,9 +89,20 @@ ${'='.repeat(50)}
 program
   .command('create')
   .description('Create new Minecraft plugin template')
+  .option('-y, --yes', 'Skip ALL prompts (use with ALL other flags)')
   .option('-n, --name <name>', 'Project name')
   .option('-d, --dir <dir>', 'Output directory', '.')
+  .option('-b, --build-tool <tool>', 'Build tool')
+  .option('-l, --language <lang>', 'Language')
+  .option('-p, --platform <platform>', 'Platform')
+  .option('-v, --version <version>', 'Minecraft version')
+  .option('-i, --ide <ide>', 'IDE')
+  .option('-g, --group-id <groupId>', 'Maven group ID')
+  .option('-a, --artifact-id <artifactId>', 'Maven artifact ID')
+  .option('--description <description>', 'Project description')
+  .option('--authors <authors>', 'Authors (comma-separated)')
   .action(async (cmd) => {
+    const skipPrompts = cmd.yes
     console.clear()
 
     console.log(chalk.cyanBright(`
@@ -102,114 +113,196 @@ ${'='.repeat(50)}
 
     const templatesBase = path.join(__dirname, '..', 'templates')
 
-    const { name } = await prompt<{ name: string }>({
-      type: 'input',
-      name: 'name',
-      message: 'Project name:',
-      initial: cmd.name || 'MyPlugin',
-      validate: (v: string) => v.trim().length > 0 || 'Name is required'
-    })
+    if (skipPrompts && (!cmd.name || !cmd.buildTool || !cmd.language || !cmd.platform || !cmd.version || !cmd.ide)) {
+      console.log(chalk.redBright('❌ --yes requires ALL flags: --name --build-tool --language --platform --version --ide'))
+      console.log(chalk.yellow('Run without --yes for interactive mode'))
+      process.exit(1)
+    }
 
-    const buildTools = await getDynamicChoices(templatesBase, '')
-    const { buildTool } = await prompt<{ buildTool: string }>({
-      type: 'select',
-      name: 'buildTool',
-      message: 'Build tool:',
-      choices: buildTools.length ? buildTools : ['maven']
-    })
+    let name: string
+    if (skipPrompts) {
+      name = cmd.name!
+    } else {
+      const { name: promptedName } = await prompt<{ name: string }>({
+        type: 'input',
+        name: 'name',
+        message: 'Project name:',
+        initial: cmd.name || 'MyPlugin',
+        validate: (v: string) => v.trim().length > 0 || 'Name is required'
+      })
+      name = promptedName
+    }
 
-    const languages = await getDynamicChoices(templatesBase, buildTool)
-    const { language } = await prompt<{ language: string }>({
-      type: 'select',
-      name: 'language',
-      message: 'Language:',
-      choices: languages.length ? languages : ['kotlin']
-    })
+    let buildTool: string
+    if (skipPrompts) {
+      buildTool = cmd.buildTool!
+    } else {
+      const buildTools = await getDynamicChoices(templatesBase, '')
+      const { buildTool: prompted } = await prompt<{ buildTool: string }>({
+        type: 'select',
+        name: 'buildTool',
+        message: 'Build tool:',
+        choices: buildTools.length ? buildTools : ['maven']
+      })
+      buildTool = prompted
+    }
 
-    const platforms = await getDynamicChoices(templatesBase, `${buildTool}/${language}`)
-    const { platform } = await prompt<{ platform: string }>({
-      type: 'select',
-      name: 'platform',
-      message: 'Platform:',
-      choices: platforms.length ? platforms : ['purpurmc']
-    })
+    let language: string
+    if (skipPrompts) {
+      language = cmd.language!
+    } else {
+      const languages = await getDynamicChoices(templatesBase, buildTool)
+      const { language: prompted } = await prompt<{ language: string }>({
+        type: 'select',
+        name: 'language',
+        message: 'Language:',
+        choices: languages.length ? languages : ['kotlin']
+      })
+      language = prompted
+    }
 
-    const versions = await getDynamicChoices(templatesBase, `${buildTool}/${language}/${platform}`)
-    const { version } = await prompt<{ version: string }>({
-      type: 'select',
-      name: 'version',
-      message: 'Minecraft version:',
-      choices: versions.length ? versions : ['1.21.11']
-    })
+    let platform: string
+    if (skipPrompts) {
+      platform = cmd.platform!
+    } else {
+      const platforms = await getDynamicChoices(templatesBase, `${buildTool}/${language}`)
+      const { platform: prompted } = await prompt<{ platform: string }>({
+        type: 'select',
+        name: 'platform',
+        message: 'Platform:',
+        choices: platforms.length ? platforms : ['purpurmc']
+      })
+      platform = prompted
+    }
 
-    const { ide } = await prompt<{ ide: string }>({
-      type: 'select',
-      name: 'ide',
-      message: 'IDE:',
-      choices: ['intellij', 'none']
-    })
+    let version: string
+    if (skipPrompts) {
+      version = cmd.version!
+    } else {
+      const versions = await getDynamicChoices(templatesBase, `${buildTool}/${language}/${platform}`)
+      const { version: prompted } = await prompt<{ version: string }>({
+        type: 'select',
+        name: 'version',
+        message: 'Minecraft version:',
+        choices: versions.length ? versions : ['1.21.11']
+      })
+      version = prompted
+    }
 
     const templatePath = path.join(templatesBase, buildTool, language, platform, version)
     if (!await fs.pathExists(templatePath)) {
       console.log(chalk.redBright('\n❌ No built-in template found!'))
       console.log(chalk.red(`   Missing: templates/${buildTool}/${language}/${platform}/${version}`))
-      console.log(chalk.yellow('   Available combinations depend on built-in templates packaged with this CLI.'))
       process.exit(1)
     }
 
-    const { groupId } = await prompt<{ groupId: string }>({
-      type: 'input',
-      name: 'groupId',
-      message: 'Group ID:',
-      initial: 'com.example',
-      validate: (v: string) => /^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*$/.test(v) || 'Invalid Maven group ID'
-    })
+    let ide: string
+    if (skipPrompts) {
+      ide = cmd.ide!
+    } else {
+      const { ide: prompted } = await prompt<{ ide: string }>({
+        type: 'select',
+        name: 'ide',
+        message: 'IDE:',
+        choices: ['intellij', 'none']
+      })
+      ide = prompted
+    }
 
-    const { artifactId } = await prompt<{ artifactId: string }>({
-      type: 'input',
-      name: 'artifactId',
-      message: 'Artifact ID:',
-      initial: name.toLowerCase().replace(/\s+/g, '-'),
-      validate: (v: string) => /^[a-z][a-z0-9_-]*$/.test(v) || 'Invalid Maven artifact ID'
-    })
+    let groupId: string
+    if (skipPrompts) {
+      groupId = cmd.groupId || 'com.example'
+    } else {
+      const { groupId: prompted } = await prompt<{ groupId: string }>({
+        type: 'input',
+        name: 'groupId',
+        message: 'Group ID:',
+        initial: 'com.example',
+        validate: (v: string) => /^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*$/.test(v) || 'Invalid Maven group ID'
+      })
+      groupId = prompted
+    }
 
-    const { description } = await prompt<{ description: string }>({
-      type: 'input',
-      name: 'description',
-      message: 'Description:',
-      initial: 'A modern Minecraft plugin'
-    })
+    let artifactId: string
+    if (skipPrompts) {
+      artifactId = cmd.artifactId || name.toLowerCase().replace(/\s+/g, '-')
+    } else {
+      const { artifactId: prompted } = await prompt<{ artifactId: string }>({
+        type: 'input',
+        name: 'artifactId',
+        message: 'Artifact ID:',
+        initial: name.toLowerCase().replace(/\s+/g, '-'),
+        validate: (v: string) => /^[a-z][a-z0-9_-]*$/.test(v) || 'Invalid Maven artifact ID'
+      })
+      artifactId = prompted
+    }
 
-    const { authors } = await prompt<{ authors: string }>({
-      type: 'input',
-      name: 'authors',
-      message: 'Authors (comma-separated):',
-      initial: 'YourName'
-    })
+    let description: string
+    if (skipPrompts) {
+      description = cmd.description || 'A modern Minecraft plugin'
+    } else {
+      const { description: prompted } = await prompt<{ description: string }>({
+        type: 'input',
+        name: 'description',
+        message: 'Description:',
+        initial: 'A modern Minecraft plugin'
+      })
+      description = prompted
+    }
 
-    const answers: Answers = { name, buildTool, language, platform, version, ide, groupId, artifactId, description, authors }
+    let authors: string
+    if (skipPrompts) {
+      authors = cmd.authors || 'YourName'
+    } else {
+      const { authors: prompted } = await prompt<{ authors: string }>({
+        type: 'input',
+        name: 'authors',
+        message: 'Authors (comma-separated):',
+        initial: 'YourName'
+      })
+      authors = prompted
+    }
+
+    const answers: Answers = {
+      name, buildTool, language, platform, version, ide, groupId, artifactId, description, authors
+    }
 
     const projectDir = path.resolve(cmd.dir, answers.name)
 
-    const { confirm } = await prompt<{ confirm: boolean }>({
-      type: 'confirm',
-      name: 'confirm',
-      message: 'Create project?'
-    })
+    if (!skipPrompts) {
+      console.log(chalk.magentaBright('\n📋 PREVIEW'))
+      console.log(chalk.gray('  Project:    '), chalk.white(name))
+      console.log(chalk.gray('  Output:     '), chalk.white(projectDir))
+      console.log(chalk.gray('  Template:   '), chalk.white(`${buildTool}/${language}/${platform}/${version}`))
+      console.log(chalk.gray('  Group ID:   '), chalk.white(groupId))
+      console.log(chalk.gray('  Artifact ID:'), chalk.white(artifactId))
 
-    if (!confirm) {
-      console.log(chalk.yellow('Cancelled.'))
-      process.exit(0)
+      const { confirm } = await prompt<{ confirm: boolean }>({
+        type: 'confirm',
+        name: 'confirm',
+        message: 'Create project?'
+      })
+      if (!confirm) {
+        console.log(chalk.yellow('Cancelled.'))
+        process.exit(0)
+      }
     }
 
     if (await fs.pathExists(projectDir)) {
-      const { overwrite } = await prompt<{ overwrite: boolean }>({
-        type: 'confirm',
-        name: 'overwrite',
-        message: `Directory ${projectDir} exists. Overwrite?`
-      })
-      if (!overwrite) process.exit(0)
-      await fs.emptyDir(projectDir)
+      if (skipPrompts) {
+        await fs.emptyDir(projectDir)
+      } else {
+        const { overwrite } = await prompt<{ overwrite: boolean }>({
+          type: 'confirm',
+          name: 'overwrite',
+          message: `Directory ${projectDir} exists. Overwrite?`
+        })
+        if (!overwrite) {
+          console.log(chalk.yellow('Cancelled.'))
+          process.exit(0)
+        }
+        await fs.emptyDir(projectDir)
+      }
     } else {
       await fs.ensureDir(projectDir)
     }

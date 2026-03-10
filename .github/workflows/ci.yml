@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      
+      - uses: pnpm/action-setup@v5
+        with:
+          version: 9
+          
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+      - run: pnpm run lint
+      - run: pnpm run format -- --check
+
+      - name: Test CLI Generation
+        run: |
+          node dist/index.js create \
+            --name "TestPlugin" \
+            --dir "test-output" \
+            --build-tool "maven" \
+            --language "kotlin" \
+            --platform "purpurmc" \
+            --version "1.21.1" \
+            --ide "intellij" \
+            --group-id "com.example" \
+            --artifact-id "test-plugin" \
+            --yes
+        env:
+          CI: true
+
+      - name: Verify Output
+        run: |
+          ls -la test-output/TestPlugin
+          grep -q "com.example" test-output/TestPlugin/pom.xml && echo "✅ pom.xml placeholder replaced" || exit 1
+        shell: bash
+
+      - run: rm -rf test-output/
