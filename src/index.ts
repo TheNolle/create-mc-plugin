@@ -60,7 +60,11 @@ program
   .command('list')
   .description('List available templates')
   .action(async () => {
-    console.clear()
+    if (process.env.CI) {
+      console.log(`[CI DEBUG] templatePath: ${path.join(__dirname, '..', 'templates')}`)
+    } else {
+      console.clear()
+    }
     console.log(chalk.cyanBright(`
 ${'='.repeat(50)}
   📂 Available Minecraft Plugin Templates
@@ -103,7 +107,12 @@ program
   .option('--authors <authors>', 'Authors (comma-separated)')
   .action(async (cmd) => {
     const skipPrompts = cmd.yes
-    if (!process.env.CI) console.clear()
+    if (process.env.CI) {
+      console.log(`[CI DEBUG] templatePath: ${path.join(__dirname, '..', 'templates')}`)
+      console.log(`[CI DEBUG] projectDir: ${path.resolve(cmd.dir, cmd.name || 'MyPlugin')}`)
+    } else {
+      console.clear()
+    }
 
     console.log(chalk.cyanBright(`
 ${'='.repeat(50)}

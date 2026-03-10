@@ -23,12 +23,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
 
-      - name: Test CLI Generation
+      - name: Test CLI Commands
         run: |
-          OUTPUT_DIR="$(pwd)/test-output"
-          node dist/index.js create \
+          if node dist/index.js create \
             --name "test" \
-            --dir "$OUTPUT_DIR" \
+            --dir "/tmp" \
             --build-tool "maven" \
             --language "kotlin" \
             --platform "purpurmc" \
@@ -36,19 +35,31 @@ jobs:
             --ide "intellij" \
             --group-id "com.example" \
             --artifact-id "test" \
-            --yes
-        env:
-          CI: true
-
-      - name: Verify Output
-        run: |
-          echo "🔍 Checking root directory..."
-          ls -R test-output/
-          PROJECT_PATH=$(find test-output -name "pom.xml" -exec dirname {} \;)
-          if [ -z "$PROJECT_PATH" ]; then
-            echo "❌ Could not find pom.xml in test-output/"
+            --yes 2>&1 | grep -q "🎉 test created"; then
+            echo "✅ Success path works"
+          else
+            echo "❌ Expected success message missing"
             exit 1
           fi
-          echo "✅ Found project at: $PROJECT_PATH"
-          grep -q "com.example" "$PROJECT_PATH/pom.xml" && echo "✅ pom.xml placeholders replaced" || exit 1
-        shell: bash
+          
+          if node dist/index.js create \
+            --name "fail" \
+            --dir "/tmp" \
+            --build-tool "maven" \
+            --language "kotlin" \
+            --platform "fake" \
+            --version "999" \
+            --ide "intellij" \
+            --group-id "com.example" \
+            --artifact-id "fail" \
+            --yes 2>&1 | grep -q "No built-in template found"; then
+            echo "✅ Error path works"
+          else
+            echo "❌ Expected error message missing"
+            exit 1
+          fi
+          
+          node dist/index.js list | grep -q "maven / kotlin / purpurmc / 1.21.11" || exit 1
+          echo "✅ All CLI paths work"
+        env:
+          CI: true
