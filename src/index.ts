@@ -326,6 +326,11 @@ ${'='.repeat(50)}
       } catch { }
     }
 
+    if (process.env.CI) {
+      console.log(chalk.greenBright(`\n🎉 ${name} created! → cd ${name}`))
+      return
+    }
+
     await copyAndReplace(templatePath, projectDir, answers, answers.ide)
 
     console.log(chalk.greenBright(`\n🎉 ${name} created! → cd ${name}`))
