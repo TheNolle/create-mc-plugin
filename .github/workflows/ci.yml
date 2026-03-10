@@ -25,9 +25,10 @@ jobs:
 
       - name: Test CLI Generation
         run: |
+          OUTPUT_DIR="$(pwd)/test-output"
           node dist/index.js create \
             --name "test" \
-            --dir "test-output" \
+            --dir "$OUTPUT_DIR" \
             --build-tool "maven" \
             --language "kotlin" \
             --platform "purpurmc" \
