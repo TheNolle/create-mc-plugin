@@ -1,7 +1,7 @@
 {
   "name": "create-mc-plugin",
   "description": "Modern Minecraft Plugin Template Generator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "bin": {
     "create-mc-plugin": "dist/index.js"
@@ -17,7 +17,45 @@
   ],
   "scripts": {
     "build": "tsc",
-    "dev": "tsx src/index.ts"
+    "dev": "tsx src/index.ts",
+    "prepublishOnly": "pnpm run build"
+  },
+  "keywords": [
+    "minecraft",
+    "plugin",
+    "template",
+    "scaffold",
+    "cli",
+    "pnpm",
+    "kotlin",
+    "maven",
+    "purpurmc",
+    "spigot",
+    "bukkit",
+    "papermc"
+  ],
+  "author": {
+    "name": "Nolly",
+    "email": "nolly.berrebi@gmail.com",
+    "url": "https://thenolle.com"
+  },
+  "contributors": [],
+  "license": "MIT",
+  "homepage": "https://github.com/thenolle/create-mc-plugin#readme",
+  "bugs": {
+    "url": "https://github.com/thenolle/create-mc-plugin/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thenolle/create-mc-plugin.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.10.0"
   },
   "dependencies": {
     "chalk": "^5.6.2",
@@ -30,5 +68,28 @@
     "@types/node": "^25.4.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
+  },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/thenolle"
+    },
+    {
+      "type": "paypal",
+      "url": "https://paypal.me/nollyscafe"
+    },
+    {
+      "type": "ko-fi",
+      "url": "https://ko-fi.com/nollycafe"
+    },
+    {
+      "type": "patreon",
+      "url": "https://www.patreon.com/_nolly"
+    }
+  ],
+  "packageManager": "pnpm@9.12.2",
+  "sideEffects": false,
+  "exports": {
+    ".": "./dist/index.js"
   }
 }
