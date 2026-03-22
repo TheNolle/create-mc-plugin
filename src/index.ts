@@ -61,6 +61,7 @@ program
   .description('List available templates')
   .action(async () => {
     console.clear()
+    console.warn("⚠️ create-mc-plugin is deprecated. Use create-nolly-template instead.")
     console.log(chalk.cyanBright(`
 ${'='.repeat(50)}
   📂 Available Minecraft Plugin Templates
@@ -104,6 +105,7 @@ program
   .action(async (cmd) => {
     const skipPrompts = cmd.yes
     console.clear()
+    console.warn("⚠️ create-mc-plugin is deprecated. Use create-nolly-template instead.")
 
     console.log(chalk.cyanBright(`
 ${'='.repeat(50)}

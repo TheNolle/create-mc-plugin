@@ -4,6 +4,10 @@ A modern, interactive CLI to scaffold Minecraft plugin projects instantly.
 
 ---
 
+# ⚠️ **Deprecated**
+
+> This package is deprecated and no longer maintained. Please use [**create-nolly-template**](https://www.npmjs.com/package/create-nolly-template) instead, which supports Minecraft plugin templates and is actively maintained.
+
 ## 📦 Installation
 
 ```bash
